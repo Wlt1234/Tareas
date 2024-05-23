@@ -1,0 +1,173 @@
+#include <iostream>
+#include <iomanip>
+#include <string>
+
+using namespace std;
+
+void AgregarContacto(string **&, int &);
+void MostrarContactos(string **, int );
+void BuscarContacto(string **, int );
+void EliminarContacto(string **&,int & );
+
+
+
+
+
+void AgregarContacto(string **&lista, int &tam) {
+    string nombre, numero, correo;
+
+    cout << "\n\n";
+
+    tam++;
+    string **nueva_lista = new string*[tam];
+    for (int i = 0; i < tam; i++) {
+        nueva_lista[i] = new string[3];
+    }
+
+    for (int i = 0; i < tam - 1; i++) {
+        nueva_lista[i][0] = lista[i][0];
+        nueva_lista[i][1] = lista[i][1];
+        nueva_lista[i][2] = lista[i][2];
+    }
+
+    for (int i = 0; i < tam - 1; i++) {
+        delete[] lista[i];
+    }
+    delete[] lista;
+
+    lista = nueva_lista;
+    cin.ignore(); 
+    cout << "Digite el nombre del contacto: ";
+    getline(cin, nombre);
+    cout << "Digite el numero de telefono (9 digitos): ";
+    cin >> numero;
+    while (numero.size() != 9) {
+        cout << "Digite un numero adecuado" << endl;
+        cin >> numero;
+    }
+    cin.ignore(); // Ignorar el salto de línea anterior
+    cout << "Digite el correo electronico: " << endl;
+    getline(cin, correo);
+
+    lista[tam - 1][0] = nombre;
+    lista[tam - 1][1] = numero;
+    lista[tam - 1][2] = correo;
+}
+
+void MostrarContactos(string **lista, int tam) {
+    if (tam == 0) {
+        cout << "No tiene contactos para mostrar" << endl;
+    } else {
+        cout << "\nContactos: (Nombre-numero-correo)\n";
+        for (int i = 0; i < tam; i++) {
+            cout << i + 1 << " ";
+            for (int j = 0; j < 3; j++) {
+                cout << setw(20) << lista[i][j] << " ";
+            }
+            cout << endl;
+        }
+        cout << "\n\n";
+    }
+}
+
+void BuscarContacto(string **lista, int tam) {
+    if (tam == 0) {
+        cout << "No tiene contactos para buscar" << endl;
+    } else {
+        cout << "\n";
+        cin.ignore(); 
+        string nombre;
+        cout << "Digite el nombre del contacto a buscar: " << endl;
+        getline(cin, nombre);
+
+        bool encontrado = false;
+        for (int i = 0; i < tam; i++) {
+            if (lista[i][0] == nombre) {
+                cout << "Contacto encontrado, aqui se muestran sus datos:\n\n";
+                cout << lista[i][0] << " " << lista[i][1] << " " << lista[i][2] << endl;
+                encontrado = true;
+            }
+        }
+
+        if (!encontrado) {
+            cout << "Contacto no encontrado." << endl;
+        }
+        cout << "\n";
+    }
+}
+
+void EliminarContacto(string **&lista, int &tam) {
+    int numero;
+    if (tam != 0) {
+        cout << "Digite el numero correspondiente del contacto a eliminar" << endl;
+        MostrarContactos(lista, tam);
+        cin >> numero;
+
+        if (numero >= 1 && numero <= tam) {
+            for (int i = numero - 1; i < tam - 1; i++) {
+                lista[i][0] = lista[i + 1][0];
+                lista[i][1] = lista[i + 1][1];
+                lista[i][2] = lista[i + 1][2];
+            }
+
+            delete[] lista[tam - 1]; 
+            tam--;
+
+            string **nueva_lista = new string*[tam];
+            for (int i = 0; i < tam; i++) {
+                nueva_lista[i] = lista[i];
+            }
+
+            delete[] lista;
+            lista = nueva_lista;
+        } else {
+            cout << "Numero fuera de rango." << endl;
+        }
+    } else {
+        cout << "No tiene contactos para eliminar" << endl;
+    }
+}
+
+int main() {
+    int tam = 0;
+    string **lista = nullptr;
+
+    char opcion = 0;
+
+    while (opcion != '5' ) {
+        cout << "1. Agregar contacto " << endl;
+        cout << "2. Mostrar contactos " << endl;
+        cout << "3. Buscar un contacto " << endl;
+        cout << "4. Eliminar contacto " << endl;
+        cout << "5. Salir" << endl;
+        cout << "Digite su opcion: " << endl;
+        cin >> opcion;
+
+        switch (opcion) {
+            case '1':
+                AgregarContacto(lista, tam);
+                break;
+            case '2':
+                MostrarContactos(lista, tam);
+                break;
+            case '3':
+                BuscarContacto(lista, tam);
+                break;
+            case '4':
+                EliminarContacto(lista, tam);
+                break;
+            case '5':
+                break;
+            default:
+                cout << "Opcion no valida, intente de nuevo." << endl;
+                break;
+        }
+    }
+
+    for (int i = 0; i < tam; i++) {
+        delete[] lista[i];
+    }
+    delete[] lista;
+
+    return 0;
+}
