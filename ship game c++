@@ -1,0 +1,291 @@
+
+#include<stdio.h>
+#include<windows.h>
+#include<conio.h>
+#include<time.h>
+#include<list>
+
+using namespace std;
+#define ARRIBA 72
+#define IZQUIERDA 75
+#define DERECHA 77
+#define ABAJO 80
+
+void gotoxy(int x,int y){
+		HANDLE hCon;
+	hCon = GetStdHandle(STD_OUTPUT_HANDLE);
+	
+	COORD dwPos;
+	
+	dwPos.X = x;
+	dwPos.Y = y;
+	SetConsoleCursorPosition(hCon,dwPos);
+}
+void Ocultarcursor(){
+		HANDLE hCon;
+	hCon = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_CURSOR_INFO cci;
+	cci.dwSize = 2;
+	cci.bVisible = FALSE;
+	
+	SetConsoleCursorInfo(hCon,&cci);
+	
+}
+
+void pintarlimites(){
+	for(int i=2;i<78;i++){
+		gotoxy(i,3);
+		printf("%c",205);
+		gotoxy(i,33);
+		printf("%c",205);
+	}
+	for(int i=4;i<33;i++){
+		gotoxy(2,i);
+		printf("%c",186);
+		gotoxy(77,i);
+		printf("%c",186);
+	}
+	
+	
+	gotoxy(2,3); printf("%c",201);
+	gotoxy(2,33); printf("%c",200);
+	gotoxy(77,3); printf("%c",187);
+	gotoxy(77,33); printf("%c",188);
+}
+
+
+
+
+
+ class Nave{
+   int x,y;
+   int corazones;
+   int vidas;
+public:
+   	Nave(int _x,int _y,int _corazones,int _vidas): x(_x), y(_y),corazones(_corazones),vidas(_vidas){}
+	    int X(){
+	 return x;
+	 }
+	 int Y() {
+	 return y;
+	 }
+	
+   	void pintar();
+   	void mover();
+   	void borrar();
+    void pintarcorazones();
+	void morir();
+	void cor(){
+		corazones--;
+	}
+};
+
+void Nave::morir(){
+	if(corazones==0){
+		borrar();
+		gotoxy(x,y);    printf("   **  ");
+		gotoxy(x,y+1);printf("  **** ");
+		gotoxy(x,y+2);printf("   **  ");
+		Sleep(400);
+		borrar();
+		gotoxy(x,y);    printf(" * ** *");
+		gotoxy(x,y+1);printf("  **** ");
+		gotoxy(x,y+2);printf(" *  **   *");
+		Sleep(400);
+		borrar();
+		vidas--;
+		corazones=3;
+		pintarcorazones();
+		pintar();
+	}
+	
+}
+void Nave::pintarcorazones(){
+	gotoxy(50,2);printf("vidas %d",vidas);
+	gotoxy(64,2); printf("salud");
+	gotoxy(70,2); printf("     ");
+	for(int i=0;i<corazones;i++){
+		gotoxy(70+i,2); printf("%c",3);
+	}
+	
+}
+void Nave::pintar(){
+	gotoxy(x,y); printf("  %c",30);
+	gotoxy(x,y+1); printf(" %c%c%c",40,207,41);
+	gotoxy(x,y+2); printf("%c%c %c%c",30,190,190,30);
+	
+}
+void Nave::borrar(){
+	gotoxy(x,y); printf("        ");
+	gotoxy(x,y+1); printf("        ");
+	gotoxy(x,y+2); printf("             ");
+	
+}
+void Nave::mover(){
+	if(kbhit()){
+		char tecla=getch();
+		borrar();
+		
+		if(tecla==IZQUIERDA && x>3 ) x=x-1;
+		if(tecla==DERECHA && x+5<76) x=x+1;
+		if(tecla==ARRIBA && y>4) y=y-2 ;
+		if(tecla==ABAJO && y+3<33) y=y+2;
+		if(tecla=='e') corazones--;
+		
+		
+		
+      	pintar();
+      	pintarcorazones();
+		
+	}
+	
+}
+class AST{
+   int x,y;
+   public:
+   	AST(int x,int y){
+   		this->x = x;
+   		this->y = y;
+	   }
+	 void setX(int x){
+	   this->x= x;
+	 }
+	 void setY(int y){
+	 	this->y = y;
+	 }
+	
+	void pintar();
+	void mover();  
+	void colision(class Nave &N);
+};
+void AST::pintar(){
+	gotoxy(x,y); printf("%c",184);
+	
+}
+// 2 ->>77  
+
+void AST::colision(class Nave &N){
+	if(x>= N.X() && x< N.X()+6 && y>= N.Y() && y<=N.Y()+2){
+		N.cor();
+		N.borrar();
+		N.pintar();
+		N.pintarcorazones();
+		x = 4 +rand()%(75+1-4);
+		y=4;
+		
+	}
+	
+}
+
+
+
+
+void AST::mover(){
+	gotoxy(x,y);printf(" ");
+	y=y+1;
+	Sleep(0);
+	if(y>32){
+		x =  4+ rand()%(70+4-1);
+		y=4;
+	}
+	pintar();
+}
+
+class Bala{
+	int x,y;
+	
+	public:
+		Bala(int x,int y){
+			this->x = x;
+			this->y = y;
+			
+		}
+		
+		int getX(){
+			return x;
+		}
+		int getY(){
+			return y;
+		}
+		
+	void mover(){
+		gotoxy(x,y);printf(" ");
+		if(y>4) y--;
+		gotoxy(x,y);printf("*");
+	}	
+	bool fuera(){
+		if(y==4){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+};
+
+
+
+int main(){
+	srand(time(NULL));
+	Ocultarcursor();
+	pintarlimites();
+
+Nave N(7,30,3,3);
+
+
+N.pintar();
+N.pintarcorazones();
+
+list<Bala*>B;
+list<Bala*>::iterator it;
+
+list<AST*>astd;
+list<AST*>::iterator itA;
+for(int i=0;i<15;i++){
+	
+
+astd.push_back(new AST(4 +rand()%(70+1-4),4));	
+	
+	
+}
+
+	
+
+
+
+bool game_over=false;
+while(!game_over){
+
+
+	if(kbhit()){
+		char tecla = getch();
+		
+		if(tecla=='a')
+		B.push_back(new Bala(N.X()+2,N.Y()-1));
+	}
+	
+	for(it = B.begin();it!=B.end();it++){
+			(*it) -> mover();
+			
+				if((*it)->fuera()){
+				gotoxy((*it)->getX(),(*it)->getY());printf(" ");
+				delete(*it);
+				it = B.erase(it);
+			}
+		
+	}
+	
+	for(itA= astd.begin();itA!= astd.end();itA++){
+		(*itA)->mover();
+		(*itA)->colision(N);
+	}
+	
+	N.morir();
+	N.mover();
+	Sleep(30);
+	
+}	
+
+	
+	return 0;
+}
