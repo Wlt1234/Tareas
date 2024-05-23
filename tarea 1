@@ -14,7 +14,7 @@ void EliminarContacto(string **&,int & );
 
 
 void AgregarContacto(string **&lista, int &tam) {
-    string nombre, numero, correo;
+    string nombre, numero;
 
     cout << "\n\n";
 
@@ -40,13 +40,32 @@ void AgregarContacto(string **&lista, int &tam) {
     cout << "Digite el nombre del contacto: ";
     getline(cin, nombre);
     cout << "Digite el numero de telefono (9 digitos): ";
-    cin >> numero;
-    while (numero.size() != 9) {
-        cout << "Digite un numero adecuado" << endl;
-        cin >> numero;
-    }
-    cin.ignore(); // Ignorar el salto de línea anterior
+    bool ver_numero;
+    do {
+        ver_numero = true;
+        getline(cin, numero);
+
+        for (char c : numero) {
+            if (!isdigit(c)) {
+                ver_numero = false;
+                break;
+            }
+        }
+
+        if (!ver_numero) {
+            cout << "Solo debe digitar valores numericos.\n";
+        }
+        if (numero.size() != 9) {
+            cout << "Debe ser un numero de 9 cifras.\n";
+            ver_numero = false;
+        }
+
+    } while (!ver_numero);
+    
+    string correo;
     cout << "Digite el correo electronico: " << endl;
+       
+
     getline(cin, correo);
 
     lista[tam - 1][0] = nombre;
@@ -120,6 +139,7 @@ void EliminarContacto(string **&lista, int &tam) {
 
             delete[] lista;
             lista = nueva_lista;
+            cout<<"Contacto eliminado satisfactoriamente "<<endl;
         } else {
             cout << "Numero fuera de rango." << endl;
         }
